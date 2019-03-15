@@ -1,10 +1,11 @@
 package me.sunhapper.androidfpsmonitor.demo;
 
 import android.app.Application;
+import android.os.Build;
 import android.util.Log;
 
-import me.sunhapper.monitor.fps.FpsCallback;
 import me.sunhapper.monitor.fps.FpsMonitor;
+import me.sunhapper.monitor.fps.callback.Callback;
 
 /**
  * Created by sunhapper on 2019/3/14 .
@@ -17,13 +18,14 @@ public class FpsApplication extends Application {
         super.onCreate();
         FpsMonitor.getInstance()
                 .init(this)
-                .enableLog(BuildConfig.DEBUG)
                 .maxSkippedFrames(10)
-                .setFpsCallback(new FpsCallback() {
+                .setFpsCallback(new Callback<Integer>() {
                     @Override
-                    public void onFps(int fps, int[] skippedFrameCountList, long longestFrameDurationNs) {
+                    public void onResult(Integer result) {
                         StringBuilder builder = new StringBuilder();
-                        builder.append("Fps :").append(fps);
+                        builder.append("Fps :").append(result);
+                        int[] skippedFrameCountList = FpsMonitor.getInstance().getSkippedFrameCounts();
+                        long longestFrameDurationNs = FpsMonitor.getInstance().getLongestFrameDurationNs();
                         for (int i = 0; i < skippedFrameCountList.length; i++) {
                             if (i == 0) {
                                 builder.append("  normal: ");
@@ -32,10 +34,14 @@ public class FpsApplication extends Application {
                             }
                             builder.append(skippedFrameCountList[i]);
                         }
-                        builder.append("  longestFrameDurationMs").append(longestFrameDurationNs / 1000 / 1000);
+                        builder.append("  longestFrameDurationMs").append(0.000001 * longestFrameDurationNs);
                         Log.i(TAG, builder.toString());
                     }
                 })
-                .start();
+                .startTraceFps();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            FpsMonitor.getInstance().startTraceFrameStatsGlobal(this);
+        }
     }
 }

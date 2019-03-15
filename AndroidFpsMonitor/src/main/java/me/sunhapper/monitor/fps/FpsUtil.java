@@ -7,8 +7,8 @@ import java.util.List;
 /**
  * Created by sunhapper on 2019/3/13 .
  */
-class FpsUtil {
-    static int sampleToFps(List<Long> samples) {
+public class FpsUtil {
+    public static int sampleToFps(List<Long> samples) {
         if (samples == null || samples.size() < 1) {
             return 0;
         }
