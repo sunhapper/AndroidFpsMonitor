@@ -16,9 +16,9 @@ public class FpsApplication extends Application {
     public void onCreate() {
         super.onCreate();
         FpsMonitor.getInstance()
+                .init(this)
                 .enableLog(BuildConfig.DEBUG)
                 .maxSkippedFrames(10)
-                .refreshRate(this)
                 .setFpsCallback(new FpsCallback() {
                     @Override
                     public void onFps(int fps, int[] skippedFrameCountList, long longestFrameDurationNs) {

@@ -15,7 +15,7 @@ class FpsFrameSampler implements Choreographer.FrameCallback {
     /**
      * fps采样周期
      */
-    private static final long SAMPLE_PERIOD_IN_NS = TimeUnit.NANOSECONDS.convert(500, TimeUnit.MILLISECONDS);
+    private static final long SAMPLE_PERIOD_IN_NS = TimeUnit.NANOSECONDS.convert(100, TimeUnit.MILLISECONDS);
     private long frameStartInNs = 0;
     private long lastFrameTimeNanos = 0;
     private boolean stop;
