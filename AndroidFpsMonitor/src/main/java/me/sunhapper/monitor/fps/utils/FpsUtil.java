@@ -1,4 +1,4 @@
-package me.sunhapper.monitor.fps;
+package me.sunhapper.monitor.fps.utils;
 
 import static me.sunhapper.monitor.fps.Constant.NS_PER_SECOND;
 

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import me.sunhapper.monitor.fps.Config;
-import me.sunhapper.monitor.fps.FpsUtil;
+import me.sunhapper.monitor.fps.utils.FpsUtil;
 import me.sunhapper.monitor.fps.callback.Callback;
 
 /**
