@@ -1,24 +1,26 @@
 package me.sunhapper.monitor.fps;
 
+import static android.view.FrameMetrics.TOTAL_DURATION;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.graphics.PixelFormat;
 import android.os.Build;
-import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.Display;
 import android.view.FrameMetrics;
-import android.view.Window;
+import android.view.Gravity;
 import android.view.WindowManager;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import me.sunhapper.monitor.fps.callback.Callback;
 import me.sunhapper.monitor.fps.contract.FpsContract;
 import me.sunhapper.monitor.fps.presenter.FpsPresenter;
+import me.sunhapper.monitor.fps.utils.PermissionUtil;
+import me.sunhapper.monitor.fps.view.FpsMonitorView;
+import me.sunhapper.monitor.fps.view.TouchListener;
 
 /**
  * Created by sunhapper on 2019/3/13 .
@@ -27,14 +29,10 @@ public class FpsMonitor implements FpsContract.View {
     private static final String TAG = "FpsMonitor";
     @SuppressLint("StaticFieldLeak")
     private static FpsMonitor instance = new FpsMonitor();
-    public static final long CHECK_DELAY = 600;
-    private boolean foreground = true, paused = true;
-    private Handler handler = new Handler();
-    private Runnable check;
-    private Map<String, Window.OnFrameMetricsAvailableListener> frameMetricsAvailableListenerMap = new HashMap<>();
-
     private FpsPresenter mFpsPresenter;
     private Callback<Integer> mFpsCallback;
+    private FpsMonitorView fpsMonitorView;
+    private WindowManager windowManager;
 
     private FpsMonitor() {
         mFpsPresenter = new FpsPresenter();
@@ -126,12 +124,52 @@ public class FpsMonitor implements FpsContract.View {
         if (mFpsCallback != null) {
             mFpsCallback.onResult(fps);
         }
+        if (fpsMonitorView != null) {
+            fpsMonitorView.setFpsInfo(String.valueOf(fps));
+        }
 
     }
 
     @Override
     public void updateFrameStats(String activityName, FrameMetrics frameMetrics) {
-        Log.i(TAG, "updateFrameStats: " + activityName + " " + frameMetrics);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (fpsMonitorView != null) {
+                fpsMonitorView.setFrameStatsInfo(activityName + " " + frameMetrics.getMetric(TOTAL_DURATION));
+            }
+            Log.i(TAG, "updateFrameStats: " + activityName + " " + frameMetrics);
+        }
+    }
+
+    public void showFpsMonitorView(Context context) {
+        if (fpsMonitorView == null) {
+            windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+            fpsMonitorView = new FpsMonitorView(context);
+            fpsMonitorView.setFpsMonitorViewListener(new FpsMonitorView.FpsMonitorViewListener() {
+                @Override
+                public void onClose() {
+                    fpsMonitorView = null;
+                }
+            });
+            final WindowManager.LayoutParams params = new WindowManager.LayoutParams();
+            params.type = PermissionUtil.getSupportParamType();
+            int flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+            params.flags = flags;
+            params.format = PixelFormat.TRANSLUCENT;
+            params.width = WindowManager.LayoutParams.WRAP_CONTENT;
+            params.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            params.gravity = Gravity.TOP | Gravity.START;
+            fpsMonitorView.setOnTouchListener(new TouchListener(params, windowManager));
+            windowManager.addView(fpsMonitorView, params);
+        }
+
+    }
+
+    public void hideFpsMonitorView() {
+        if (fpsMonitorView != null) {
+            windowManager.removeViewImmediate(fpsMonitorView);
+            fpsMonitorView = null;
+        }
+
     }
 
 }
