@@ -151,7 +151,7 @@ public class FpsMonitor implements FpsContract.View {
                 }
             });
             final WindowManager.LayoutParams params = new WindowManager.LayoutParams();
-            params.type = PermissionUtil.getSupportParamType();
+            params.type = PermissionUtil.getSupportWindowManagerParamType();
             int flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
             params.flags = flags;
             params.format = PixelFormat.TRANSLUCENT;
