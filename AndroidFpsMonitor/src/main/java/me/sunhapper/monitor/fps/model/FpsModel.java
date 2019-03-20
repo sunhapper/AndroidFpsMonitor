@@ -29,6 +29,7 @@ public class FpsModel implements Choreographer.FrameCallback {
     private Callback<Integer> fpsCallback;
     private int[] skippedFrames = new int[MAX_SKIPPED_FRAME];
     private long longestFrameDurationNs = 0;
+    private Callback<Long> frameDurationCallback;
 
     @Override
     public void doFrame(long frameTimeNanos) {
@@ -41,6 +42,9 @@ public class FpsModel implements Choreographer.FrameCallback {
             lastFrameTimeNanos = frameTimeNanos;
         } else {
             long diffNs = frameTimeNanos - lastFrameTimeNanos;
+            if (frameDurationCallback != null) {
+                frameDurationCallback.onResult(diffNs);
+            }
             lastFrameTimeNanos = frameTimeNanos;
             int skippedFrame = (int) (diffNs / Config.VSYNC_PERIOD_NS);
             if (skippedFrame > MAX_SKIPPED_FRAME - 1) {
@@ -97,5 +101,9 @@ public class FpsModel implements Choreographer.FrameCallback {
             skippedFrames[i] = 0;
         }
         longestFrameDurationNs = 0;
+    }
+
+    public void setFrameDurationCallback(Callback<Long> frameDurationCallback) {
+        this.frameDurationCallback = frameDurationCallback;
     }
 }

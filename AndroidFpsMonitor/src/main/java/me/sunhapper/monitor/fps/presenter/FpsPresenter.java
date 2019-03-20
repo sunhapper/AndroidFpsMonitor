@@ -11,6 +11,7 @@ import me.sunhapper.monitor.fps.callback.DoubleParamsCallback;
 import me.sunhapper.monitor.fps.contract.FpsContract;
 import me.sunhapper.monitor.fps.model.FpsModel;
 import me.sunhapper.monitor.fps.model.FrameStatsModel;
+import me.sunhapper.monitor.fps.model.TraceStackModel;
 
 /**
  * Created by sunhapper on 2019/3/15 .
@@ -19,12 +20,14 @@ public class FpsPresenter implements FpsContract.Presenter, DoubleParamsCallback
 
     private FpsContract.View mView;
     private FpsModel mFpsModel;
+    private TraceStackModel mTraceStackModel;
     @RequiresApi(Build.VERSION_CODES.N)
     private FrameStatsModel mFrameStatsModel;
 
 
     public FpsPresenter() {
         mFpsModel = new FpsModel();
+        mTraceStackModel = new TraceStackModel();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             mFrameStatsModel = new FrameStatsModel();
         }
@@ -38,6 +41,16 @@ public class FpsPresenter implements FpsContract.Presenter, DoubleParamsCallback
                 if (mView != null) {
                     mView.updateFps(result);
                 }
+            }
+        });
+        mTraceStackModel.startDump();
+        mFpsModel.setFrameDurationCallback(new Callback<Long>() {
+            @Override
+            public void onResult(Long result) {
+                if (result > 200L * 1000 * 1000) {
+                    mTraceStackModel.getThreadStackEntries();
+                }
+                mTraceStackModel.restartDump();
             }
         });
     }
