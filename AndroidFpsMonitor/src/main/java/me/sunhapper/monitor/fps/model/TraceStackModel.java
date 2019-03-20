@@ -8,7 +8,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -21,7 +21,7 @@ public class TraceStackModel {
     private AtomicBoolean mRunning = new AtomicBoolean(false);
     private HandlerThread mStackThread;
     private Handler mStackHandler;
-    final private Set<String> mStackSet = new HashSet<>();
+    final private Set<String> mStackSet = new LinkedHashSet<>();
 
     public TraceStackModel() {
         if (mStackThread == null) {
@@ -41,7 +41,7 @@ public class TraceStackModel {
         synchronized (mStackSet) {
             result = new ArrayList<>(mStackSet);
             for (String stack : result) {
-                Log.i(TAG,  stack);
+                Log.i(TAG, stack);
             }
         }
         return result;
@@ -73,6 +73,9 @@ public class TraceStackModel {
         }
         if (!mRunning.get()) {
             return;
+        }
+        synchronized (mStackSet) {
+            mStackSet.clear();
         }
         mRunning.set(false);
         mStackHandler.removeCallbacks(mRunnable);
